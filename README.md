@@ -1,29 +1,8 @@
 # README #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This is the root folder of the repository for ALGAV 2017/18
 
-### What is this repository for? ###
+Sub-folders are organized as follows:
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
-
-### How do I get set up? ###
-
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+- PLXX-DD-MM - Folder where students should store all files related with exercises of the Lab number XX on week starting in DD-MM.
+- PROJN - Folder where students must store all files related with Project N
