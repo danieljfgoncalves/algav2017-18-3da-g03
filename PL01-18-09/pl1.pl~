@@ -45,7 +45,7 @@ idiv(A,B,Q,R):- A1=A-B, idiv(A1,B,Q1,R1), Q is Q1+1, R is R1,!.
 div(A,B):- idiv(A,B,Q,R), write('Quociente='),write(Q), write(' Resto='),write(R).
 
 p(N, N):-!.
-p(N, C):- M is mod(N,C), M==0,!, fail.
+p(N, C):- mod(N,C)==0,!, fail.
 p(N, C):- C1 is C+1, p(N, C1).
 
 primo(N):- N=<1,!,fail.
