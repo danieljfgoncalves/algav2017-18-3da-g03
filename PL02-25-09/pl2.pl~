@@ -1,0 +1,32 @@
+soma([],0).
+soma([H|T],S):- soma(T,S1), S is S1+H.
+cont([],0).
+cont([_|T],N):- cont(T,N1), N is N1+1.
+media(L):- soma(L,S), cont(L,N), R is div(S,N), write(R).
+
+menor([M],M).
+menor([H|T],M):-  menor(T,M1),  M1=<H, M=M1.
+menor([H|_],M):- M=H.
+
+par(H,P,I,P1,I1):- M is mod(H,2), M==0,!, P is P1+1, I is I1.
+par(_,P,I,P1,I1):- P is P1, I is I1+1.
+
+
+parImp([],0,0).
+parImp([H|T],P,I):- parImp(T,P1,I1), par(H, P, I, P1, I1).
+
+rep([]):-!,fail.
+rep([H|T]):- member(H,T),!,true.
+rep([_|T]):- rep(T).
+
+delete(X, [X|T], T).
+delete(X, [H|T],[H|L]):- delete(X,T,L).
+
+concat(L1,L2,L3):- append(L1,L2,L3).
+
+minFirst(L,L2):- menor(L, M), delete(M, L, L1), concat([M], L1, L2),!,true.
+
+
+lin([],[]).
+lin([H|T],L):- !, lin(H,L1), lin(T,L2), append(L1,L2,L).
+lin(L,[L]).
