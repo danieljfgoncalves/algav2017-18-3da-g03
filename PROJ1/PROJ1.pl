@@ -229,3 +229,17 @@ sublista([P|T]):- pais(P,_,PL), vizinhos(P, L), write(P),write(', '), write(PL),
 
 
 lista(C):- continente(C), write('Continente: '), write(C), nl, write('---------------------------'), nl, paisesCont(C, L), sublista(L).
+
+
+
+
+% [PROJ1-04] - Escreva o predicado paisesGrandes(C,N,L) que calcula a
+% lista de países com mais de N milhões de habitantes de um dado
+% continente, ordenada por ordem crescente de população no formato
+% indicado:
+%    ?- paisesGrandes(europa,50,L).
+%    L = [60.59-italia, ..., 79.81-turquia, 82.8-alemanha,
+%    146.5-russia].
+
+paisesGrandes(C,N,L):- setof(Pl-P,(pais(P,C,Pl), Pl > N),L).
+
