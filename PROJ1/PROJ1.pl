@@ -217,15 +217,51 @@ fronteira(romenia, ucrania).
 
 fronteira(russia, ucrania).
 
-
+% Cria lista com paises de um dado continente
 paisesCont(C,L):- findall(P, pais(P,C, _), L).
 
+% Cria lista com os paises vizinhos de um dado pais
 vizinho(P1, P2):- P1\==P2,(fronteira(P1, P2); fronteira(P2, P1)).
 vizinhos(P, L) :-  findall(P2, vizinho(P,P2), L).
 
+% Escreve informações sobre cada pais de uma dada lista de paises
 sublista([]).
 sublista([P|T]):- pais(P,_,PL), vizinhos(P, L), write(P),write(', '), write(PL), write(', '), write(L), nl, sublista(T).
 
 
-
+% Escreve informações sobre um dado continente
 lista(C):- continente(C), write('Continente: '), write(C), nl, write('---------------------------'), nl, paisesCont(C, L), sublista(L).
+
+
+% [PROJ1 - 03] Escreva o predicado doisMaisPop(P1, P2) que apresenta os
+% dois países com mais habitantes.
+
+% Compara dois paises e retorna o que tiver maior população
+maxPop(P1,P2, P3):- pais(P1,_,PL1), pais(P2,_,PL2), PL1 >= PL2,!, P3 = P1.
+maxPop(_,P2,P2).
+
+% Retorna o pais com maior população de uma lista
+maisPop([],M,M).
+maisPop([P|T],M0,M):- maxPop(M0,P,M1), maisPop(T,M1,M).
+maisPop(L,M):- [P|T] = L, maisPop(T,P,M).
+
+% Apaga a primeira instancia de um elemento numa lista
+delete(X, [X|T], T).
+delete(X, [H|T],[H|L]):- delete(X,T,L).
+
+% Organiza todos os paises numa lista, encontra o pais com maior
+% população, retira esse pais da lista e repete o processo mais uma vez.
+% Isto permite obter os dois paises com maior população.
+doisMaisPop(P1,P2):-  findall(P, pais(P,_,_),L), write(L), maisPop(L,P1), delete(P1,L,LR), maisPop(LR,P2),!.
+
+
+% [PROJ1 - 05] Escreva  o predicado somaPopViz(P,L,S) que coloca em L os
+% pares (População, País-vizinho) e calcula a soma da população de todos os vizinhos do país P.
+% Exemplo: somaPopViz(italia,L,S).
+% L = [(8.42, suica), (8.77, austria),(2.06, eslovenia), (66.99,franca)]
+% S = 86.24 ;
+
+somaPop([],0.0).
+somaPop([H|T],S):-somaPop(T,S1), pais(H,_,PL), S is S1+PL.
+somaPopViz(P,S):- vizinhos(P,L),somaPop(L,S),!.
+somaPopViz(P,L,S):- findall((PL, P2),(vizinho(P, P2), pais(P2,_,PL)), L),somaPopViz(P,S).
