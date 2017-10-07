@@ -255,6 +255,16 @@ delete(X, [H|T],[H|L]):- delete(X,T,L).
 doisMaisPop(P1,P2):-  findall(P, pais(P,_,_),L), write(L), maisPop(L,P1), delete(P1,L,LR), maisPop(LR,P2),!.
 
 
+% [PROJ1-04] - Escreva o predicado paisesGrandes(C,N,L) que calcula a
+% lista de países com mais de N milhões de habitantes de um dado
+% continente, ordenada por ordem crescente de população no formato
+% indicado:
+%    ?- paisesGrandes(europa,50,L).
+%    L = [60.59-italia, ..., 79.81-turquia, 82.8-alemanha,
+%    146.5-russia].
+
+paisesGrandes(C,N,L):- setof(Pl-P,(pais(P,C,Pl), Pl > N),L).
+
 % [PROJ1 - 05] Escreva  o predicado somaPopViz(P,L,S) que coloca em L os
 % pares (População, País-vizinho) e calcula a soma da população de todos os vizinhos do país P.
 % Exemplo: somaPopViz(italia,L,S).
