@@ -275,3 +275,31 @@ somaPop([],0.0).
 somaPop([H|T],S):-somaPop(T,S1), pais(H,_,PL), S is S1+PL.
 somaPopViz(P,S):- vizinhos(P,L),somaPop(L,S),!.
 somaPopViz(P,L,S):- findall((PL, P2),(vizinho(P, P2), pais(P2,_,PL)), L),somaPopViz(P,S).
+
+% [PROJ1 - 6] Escreva o predicado numPaisesAtravessados(P1, P2, Num) que calcula o menor número de países que é necessário atravessar para chegar de P1 a P2.
+
+% Pesquisa em Largura:
+bfsComContador(Orig, Dest, Num):-
+    bfsComContador2(Dest,[[Orig]], Num).
+% Condição final: destino = nó à cabeça do caminho actual
+bfsComContador2(Dest, [[Dest|_]|_],-1):-
+    % Retirar a visita ao pais de destino (por isso, -1).
+    !.
+bfsComContador2(Dest, [LA|Outros], Num):-
+    LA = [Act|_],
+    % Calcular todos os nós adjacentes não visitado e
+    % gerar um caminhos novo c/ cada nó e caminho actual
+    findall([X|LA],
+            (Dest\==Act, vizinho(Act, X), \+ member(X,LA)),
+            Novos),
+    % Novos caminhos são colocados no final da lista
+    % P/ posterior exploração
+    append(Outros, Novos, Todos),
+    % Chamada recursiva
+    bfsComContador2(Dest, Todos, Num1),
+    Num is Num1 + 1.
+
+numPaisesAtravessados(P1, P2, Num):-
+    pais(P1, C, _),
+    pais(P2, C, _), % Verifica se pertence ao mesmo continente.
+    bfsComContador(P1, P2, Num).
