@@ -1,11 +1,11 @@
-% [ PROJ1-01 ] Carregue para memÛria a BC definida no ficheiro
+% [ PROJ1-01 ] Carregue para mem√≥ria a BC definida no ficheiro
 % paises.txt.
 :- consult('paises.txt').
 
-% [PROJ1 - 02] Escreva o predicado lista(C) que lista todos os paÌse% s
+% [PROJ1 - 02] Escreva o predicado lista(C) que lista todos os pa√≠se% s
 % de um dado continente apresentando em
-% cabeÁalho o continente e linha a linha os paÌses: <nome>, <populaÁ„o>,
-% <lista paÌses fronteira>.
+% cabe√ßalho o continente e linha a linha os pa√≠ses: <nome>, <popula√ß√£o>,
+% <lista pa√≠ses fronteira>.
 
 % Cria lista com paises de um dado continente
 paisesCont(C,L):- findall(P, pais(P,C, _), L).
@@ -14,23 +14,23 @@ paisesCont(C,L):- findall(P, pais(P,C, _), L).
 vizinho(P1, P2):- P1\==P2,(fronteira(P1, P2); fronteira(P2, P1)).
 vizinhos(P, L) :-  findall(P2, vizinho(P,P2), L).
 
-% Escreve informaÁıes sobre cada pais de uma dada lista de paises
+% Escreve informa√ß√µes sobre cada pais de uma dada lista de paises
 sublista([]).
 sublista([P|T]):- pais(P,_,PL), vizinhos(P, L), write(P),write(', '), write(PL), write(', '), write(L), nl, sublista(T).
 
 
-% Escreve informaÁıes sobre um dado continente
+% Escreve informa√ß√µes sobre um dado continente
 lista(C):- continente(C), write('Continente: '), write(C), nl, write('---------------------------'), nl, paisesCont(C, L), sublista(L).
 
 
 % [PROJ1 - 03] Escreva o predicado doisMaisPop(P1, P2) que apresenta os
-% dois paÌses com mais habitantes.
+% dois pa√≠ses com mais habitantes.
 
-% Compara dois paises e retorna o que tiver maior populaÁ„o
+% Compara dois paises e retorna o que tiver maior popula√ß√£o
 maxPop(P1,P2, P3):- pais(P1,_,PL1), pais(P2,_,PL2), PL1 >= PL2,!, P3 = P1.
 maxPop(_,P2,P2).
 
-% Retorna o pais com maior populaÁ„o de uma lista
+% Retorna o pais com maior popula√ß√£o de uma lista
 maisPop([],M,M).
 maisPop([P|T],M0,M):- maxPop(M0,P,M1), maisPop(T,M1,M).
 maisPop(L,M):- [P|T] = L, maisPop(T,P,M).
@@ -40,14 +40,14 @@ del(X, [X|T], T).
 del(X, [H|T],[H|L]):- del(X,T,L).
 
 % Organiza todos os paises numa lista, encontra o pais com maior
-% populaÁ„o, retira esse pais da lista e repete o processo mais uma vez.
-% Isto permite obter os dois paises com maior populaÁ„o.
+% popula√ß√£o, retira esse pais da lista e repete o processo mais uma vez.
+% Isto permite obter os dois paises com maior popula√ß√£o.
 doisMaisPop(P1,P2):-  findall(P, pais(P,_,_),L), write(L), maisPop(L,P1), del(P1,L,LR), maisPop(LR,P2),!.
 
 
 % [PROJ1-04] - Escreva o predicado paisesGrandes(C,N,L) que calcula a
-% lista de paÌses com mais de N milhıes de habitantes de um dado
-% continente, ordenada por ordem crescente de populaÁ„o no formato
+% lista de pa√≠ses com mais de N milh√µes de habitantes de um dado
+% continente, ordenada por ordem crescente de popula√ß√£o no formato
 % indicado:
 %    ?- paisesGrandes(europa,50,L).
 %    L = [60.59-italia, ..., 79.81-turquia, 82.8-alemanha,
@@ -56,7 +56,7 @@ doisMaisPop(P1,P2):-  findall(P, pais(P,_,_),L), write(L), maisPop(L,P1), del(P1
 paisesGrandes(C,N,L):- setof(Pl-P,(pais(P,C,Pl), Pl > N),L).
 
 % [PROJ1 - 05] Escreva  o predicado somaPopViz(P,L,S) que coloca em L os
-% pares (PopulaÁ„o, PaÌs-vizinho) e calcula a soma da populaÁ„o de todos os vizinhos do paÌs P.
+% pares (Popula√ß√£o, Pa√≠s-vizinho) e calcula a soma da popula√ß√£o de todos os vizinhos do pa√≠s P.
 % Exemplo: somaPopViz(italia,L,S).
 % L = [(8.42, suica), (8.77, austria),(2.06, eslovenia), (66.99,franca)]
 % S = 86.24 ;
@@ -66,27 +66,28 @@ somaPop([H|T],S):-somaPop(T,S1), pais(H,_,PL), S is S1+PL.
 somaPopViz(P,S):- vizinhos(P,L),somaPop(L,S),!.
 somaPopViz(P,L,S):- findall((PL, P2),(vizinho(P, P2), pais(P2,_,PL)), L),somaPopViz(P,S).
 
-% [PROJ1 - 6] Escreva o predicado numPaisesAtravessados(P1, P2, Num) que calcula o menor n˙mero de paÌses que È necess·rio atravessar para chegar de P1 a P2.
+% [PROJ1 - 6] Escreva o predicado numPaisesAtravessados(P1, P2, Num) que calcula o menor n√∫mero de pa√≠ses que √© 
+% necess√°rio atravessar para chegar de P1 a P2.
 
-cont([],0).
-cont([_|T],N):- cont(T,N1), N is N1+1.
+contar([],0).
+contar([_|T],N):- cont(T,N1), N is N1+1.
 
 % Pesquisa em Largura:
 npa(Orig, Dest,Num):-
     npa2(Dest,[[Orig]],Num).
-% CondiÁ„o final: destino = nÛ ‡ cabeÁa do caminho actual
+% Condi√ß√£o final: destino = n√≥ √† cabe√ßa do caminho actual
 npa2(Dest, [[Dest|T]|_],Num):-
-    % Retirar a visita ao pais de destino (por isso, -1).
-    cont([Dest|T],Num1), Num is Num1 - 2.
+    % Contar a lista e retirar origem e destino.
+    contar([Dest|T],Num1), Num is Num1 - 2.
 npa2(Dest, [LA|Outros],Num):-
     LA = [Act|_],
-    % Calcular todos os nÛs adjacentes n„o visitado e
-    % gerar um caminhos novo c/ cada nÛ e caminho actual
+    % Calcular todos os n√≥s adjacentes n√£o visitado e
+    % gerar um caminhos novo c/ cada n√≥ e caminho actual
     findall([X|LA],
             (Dest\==Act, vizinho(Act, X), \+ member(X,LA)),
             Novos),
-    % Novos caminhos s„o colocados no final da lista
-    % P/ posterior exploraÁ„o
+    % Novos caminhos s√£o colocados no final da lista
+    % P/ posterior explora√ß√£o
     append(Outros, Novos, Todos),
     % Chamada recursiva
     npa2(Dest, Todos,Num).
@@ -96,37 +97,27 @@ numPaisesAtravessados(P1, P2, Num):-
     pais(P2, C, _), % Verifica se pertence ao mesmo continente.
     npa(P1, P2, Num).
 
-% [PROJ1 - 08] Dado um continente, um paÌs origem e o n˙mero de fronteiras a atravessar, apresente todos os roteiros possÌveis.
-%
+% [PROJ1-07] Dado um paiÃÅs origem, um paiÃÅs destino e o nuÃÅmero de fronteiras a atravessar, pretende-se 
+% que apresentem todos os roteiros possiÃÅveis entre esses dois paiÃÅses.
 
-% Reverse de lista de listas
-%
-imprimeReverse([]).
-imprimeReverse([H|T]):- imprimeReverse(T), reverse(H, Rot), write(Rot), write('\n').
-
-% roteiros (com base no bfs)
-roteirosSemDest(Orig, Continente, Num) :-
-    pais(Orig,Continente,_),
-
-
-
-
-    rsd2([[Orig]], Continente, Num) .
-%condiÁ„o final: destino = nÛ ‡ cabeÁa do caminho actual
-rsd2(Todos,_, 0) :-
-    %caminho actual est· invertido
-    imprimeReverse(Todos).
-rsd2([LA|Outros],Continente, Num) :-
+% ### Pesquisa em Largura: ###
+bfs(Orig, Dest, Cam) :-
+    bfs2(Dest,[[Orig]], Cam).
+%condi√ß√£o final: destino = n√≥ √† cabe√ßa do caminho actual
+bfs2(Dest, [[Dest|T]|_], Cam) :-
+    %caminho actual est√° invertido
+    reverse([Dest|T], Cam).
+bfs2(Dest, [LA|Outros], Cam) :-
     LA = [Act|_] ,
-    %calcular todos os nÛs adjacentes n„o visitado e
-    %gerar um caminhos novo c/ cada nÛ e caminho actual
+    %calcular todos os n√≥s adjacentes n√£o visitado e
+    %gerar um caminhos novo c/ cada n√≥ e caminho actual
     findall([X|LA],
-            (pais(X,Continente,_), vizinho(Act, X), \+ member(X,LA)),
-            Novos),
-    %novos caminhos s„o colocados no final da lista
-    %p/ posterior exploraÁ„o
+            (Dest\==Act, vizinho(Act, X), \+ member(X,LA)),
+            Novos) ,
+    %novos caminhos s√£o colocados no final da lista
+    %p/ posterior explora√ß√£o
     append(Outros, Novos, Todos) ,
-    Num1 is Num - 1,
     %chamada recursiva
-    rsd2(Todos,Continente, Num1) .
+    bfs2(Dest, Todos, Cam).
 
+roteiros(Orig,Dest,N,L):- Orig\==Dest, findall(Cam,(bfs(Orig,Dest,Cam), contar(Cam,F), N1 is N+1, F==N1) , L).
