@@ -66,11 +66,11 @@ somaPop([H|T],S):-somaPop(T,S1), pais(H,_,PL), S is S1+PL.
 somaPopViz(P,S):- vizinhos(P,L),somaPop(L,S),!.
 somaPopViz(P,L,S):- findall((PL, P2),(vizinho(P, P2), pais(P2,_,PL)), L),somaPopViz(P,S).
 
-% [PROJ1 - 6] Escreva o predicado numPaisesAtravessados(P1, P2, Num) que calcula o menor número de países que é 
+% [PROJ1 - 6] Escreva o predicado numPaisesAtravessados(P1, P2, Num) que calcula o menor número de países que é
 % necessário atravessar para chegar de P1 a P2.
 
 contar([],0).
-contar([_|T],N):- cont(T,N1), N is N1+1.
+contar([_|T],N):- contar(T,N1), N is N1+1.
 
 % Pesquisa em Largura:
 npa(Orig, Dest,Num):-
@@ -97,7 +97,7 @@ numPaisesAtravessados(P1, P2, Num):-
     pais(P2, C, _), % Verifica se pertence ao mesmo continente.
     npa(P1, P2, Num).
 
-% [PROJ1-07] Dado um país origem, um país destino e o número de fronteiras a atravessar, pretende-se 
+% [PROJ1-07] Dado um país origem, um país destino e o número de fronteiras a atravessar, pretende-se
 % que apresentem todos os roteiros possíveis entre esses dois países.
 
 % ### Pesquisa em Largura: ###
