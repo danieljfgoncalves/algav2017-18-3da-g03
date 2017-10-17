@@ -275,3 +275,39 @@ somaPop([],0.0).
 somaPop([H|T],S):-somaPop(T,S1), pais(H,_,PL), S is S1+PL.
 somaPopViz(P,S):- vizinhos(P,L),somaPop(L,S),!.
 somaPopViz(P,L,S):- findall((PL, P2),(vizinho(P, P2), pais(P2,_,PL)), L),somaPopViz(P,S).
+
+
+contar([],0).
+contar([_|T],N):- contar(T,N1), N is N1+1.
+
+% ### Pesquisa em Largura: ###
+bfs(Orig, Dest, Cam) :-
+    bfs2(Dest,[[Orig]], Cam).
+%condição final: destino = nó à cabeça do caminho actual
+bfs2(Dest, [[Dest|T]|_], Cam) :-
+    %caminho actual está invertido
+    reverse([Dest|T], Cam).
+bfs2(Dest, [LA|Outros], Cam) :-
+    LA = [Act|_] ,
+    %calcular todos os nós adjacentes não visitado e
+    %gerar um caminhos novo c/ cada nó e caminho actual
+    findall([X|LA],
+            (Dest\==Act, vizinho(Act, X), \+ member(X,LA)),
+            Novos) ,
+    %novos caminhos são colocados no final da lista
+    %p/ posterior exploração
+    append(Outros, Novos, Todos) ,
+    %chamada recursiva
+    bfs2(Dest, Todos, Cam).
+
+roteiros(Orig,Dest,N,L):- Orig\==Dest, findall(Cam,(bfs(Orig,Dest,Cam), contar(Cam,F), N1 is N+1, F==N1) , L).
+
+
+
+
+
+
+
+
+
+
