@@ -174,3 +174,16 @@ colorir_pais(P,C):- C1 is C+1,colorir_pais(P,C1).
 colorir([]).
 colorir(L):- maiorGrau(L, P), colorir_pais(P,1), del(P,L,L1), colorir(L1).
 colorir_mapa(C):- continente(C), paisesCont(C, L),colorir(L),!.
+
+apagar_cores_c(C):- continente(C), paisesCont(C, L), apagar_cores(L).
+apagar_cores([]).
+apagar_cores([H|T]):- retractall(cor(_,H)), apagar_cores(T).
+
+%[ PROJ1-10 ] - Crie	o	predicado	checkCores(R)	que	produz	em	R	uma	lista	de	triplos	(P,C,L)	em	que	L	é	o	resultado	da	interseção	da	cor	C,	do	país	P	com	as	cores	dos	países	que	fazem	fronteira	com	P.
+
+checkCores(R):- findall((P,C,L),(cor(C,P), findall(PV, (cor(C,PV),vizinho(P,PV)),L)),R), imprime(R).
+
+
+
+
+
