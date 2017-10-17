@@ -184,6 +184,5 @@ apagar_cores([H|T]):- retractall(cor(_,H)), apagar_cores(T).
 checkCores(R):- findall((P,C,L),(cor(C,P), findall(PV, (cor(C,PV),vizinho(P,PV)),L)),R), imprime(R).
 
 
-
-
-
+% 11. Guarde a BC num ficheiro de texto no final do ficheiro
+save():-tell('save.txt'), listing(_), told.
