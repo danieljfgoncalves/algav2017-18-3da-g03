@@ -1,7 +1,9 @@
 % [ PROJ1-01 ] Carregue para mem√≥ria a BC definida no ficheiro
 % paises.txt.
 :- consult('paises.txt').
+:- dynamic cor/2.
 
+%:- dinamic_allocation
 % [PROJ1 - 02] Escreva o predicado lista(C) que lista todos os pa√≠se% s
 % de um dado continente apresentando em
 % cabe√ßalho o continente e linha a linha os pa√≠ses: <nome>, <popula√ß√£o>,
@@ -151,3 +153,24 @@ dfs2(Act, F, LA, Cam) :-
     F1 is F - 1,
     %chamada recursiva
     dfs2(X, F1, [X|LA], Cam) .
+
+
+% [PROJ1 - 09] - Elabore	o	predicado	colorir_mapa(C)	que	para	os	paÌses	e	as	fronteiras	carregados	na	BC	relativos	ao	continente	C,	produz	factos	do	tipo	cor(Cor,PaÌs),	de	forma	a	que	paÌses	vizinhos	n„o	partilhem	a	mesma	cor	e	usando	o	menor	n˙mero	possÌvel	de	cores.
+%
+
+
+grau(P,N):- vizinhos(P,L), contar(L,N).
+maxGrau(P1,P2,P3):- grau(P1,N1), grau(P2,N2), N1>=N2, !, P3 = P1.
+maxGrau(_,P2,P2).
+
+maiorGrau([],M,M).
+maiorGrau([P|T],M0,M):- maxGrau(M0,P,M1), maiorGrau(T,M1,M).
+maiorGrau(L,M):- [P|T] = L, maiorGrau(T,P,M).
+
+
+colorir_pais(P,C):- findall(PV, (cor(C,PV),vizinho(P,PV)), Coloridos), contar(Coloridos, N), N==0, assertz(cor(C,P)),write(cor(C,P)), write("\n"),!.
+colorir_pais(P,C):- C1 is C+1,colorir_pais(P,C1).
+
+colorir([]).
+colorir(L):- maiorGrau(L, P), colorir_pais(P,1), del(P,L,L1), colorir(L1).
+colorir_mapa(C):- continente(C), paisesCont(C, L),colorir(L),!.
