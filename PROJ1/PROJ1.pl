@@ -121,3 +121,33 @@ bfs2(Dest, [LA|Outros], Cam) :-
     bfs2(Dest, Todos, Cam).
 
 roteiros(Orig,Dest,N,L):- Orig\==Dest, findall(Cam,(bfs(Orig,Dest,Cam), contar(Cam,F), N1 is N+1, F==N1) , L).
+
+% [PROJ1 - 08] Dado um continente, um país origem e o número de fronteiras a atravessar, apresente todos os roteiros possíveis.
+%
+
+% imprimir lista de listas
+%
+imprime([]).
+imprime([H|T]):- write(H), write('\n'), imprime(T).
+
+% roteiros (com base no bfs)
+roteirosSemDest(Orig, Continente, F) :-
+    pais(Orig,Continente,_),
+    findall(Cam, (dfs(Orig, F, Cam), contar(Cam,Num), Num1 is Num -1, Num1==F), L), imprime(L).
+
+% ### Pesquisa em profundidade: ###
+dfs(Orig,F, Cam) :-
+    dfs2(Orig, F, [Orig], Cam) .
+%condição final: nodo actual = destino
+dfs2(_, 0, LA, Cam) :-
+    reverse(LA, Cam).
+dfs2(Act, F, LA, Cam) :-
+    %testar ligação entre ponto
+    %actual e um qualquer X
+    vizinho(Act, X) ,
+    %testar não circularidade p/ não
+    %visitar nodos já visitados
+    \+ member(X,LA) ,
+    F1 is F - 1,
+    %chamada recursiva
+    dfs2(X, F1, [X|LA], Cam) .
