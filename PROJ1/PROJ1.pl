@@ -303,11 +303,30 @@ bfs2(Dest, [LA|Outros], Cam) :-
 roteiros(Orig,Dest,N,L):- Orig\==Dest, findall(Cam,(bfs(Orig,Dest,Cam), contar(Cam,F), N1 is N+1, F==N1) , L).
 
 
+% [PROJ1 - 6] Escreva o predicado numPaisesAtravessados(P1, P2, Num) que calcula o menor número de países que é necessário atravessar para chegar de P1 a P2.
 
+% Pesquisa em Largura:
+bfsComContador(Orig, Dest, Num):-
+    bfsComContador2(Dest,[[Orig]], Num).
+% Condição final: destino = nó à cabeça do caminho actual
+bfsComContador2(Dest, [[Dest|_]|_],-1):-
+    % Retirar a visita ao pais de destino (por isso, -1).
+    !.
+bfsComContador2(Dest, [LA|Outros], Num):-
+    LA = [Act|_],
+    % Calcular todos os nós adjacentes não visitado e
+    % gerar um caminhos novo c/ cada nó e caminho actual
+    findall([X|LA],
+            (Dest\==Act, vizinho(Act, X), \+ member(X,LA)),
+            Novos),
+    % Novos caminhos são colocados no final da lista
+    % P/ posterior exploração
+    append(Outros, Novos, Todos),
+    % Chamada recursiva
+    bfsComContador2(Dest, Todos, Num1),
+    Num is Num1 + 1.
 
-
-
-
-
-
-
+numPaisesAtravessados(P1, P2, Num):-
+    pais(P1, C, _),
+    pais(P2, C, _), % Verifica se pertence ao mesmo continente.
+    bfsComContador(P1, P2, Num).
