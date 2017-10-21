@@ -143,18 +143,59 @@ tspAux(Orig, LA, Cam, Num, DA, DT) :-
 % [ RESPOSTA ] - 10 cidades.
 
 
+% [PROJ2 - EX03] Implemente o predicado tsp2, utilizando uma heurística greedy, a heurística do vizinho mais próximo (ideia base: próxima cidade a ser visitada é a mais próxima que ainda não foi visitada.
 
+% [HEURÍSTICA UTILIZADA BestFS Adaptada] - O BestFS sendo um metodo
+% baseado no critério local, não nos garante resultado ótimo, mas por
+% outro lado garante-nos uma solução rapidamente pois não são explorados
+% multiplas opções.
 
+tsp2(Orig, Cam, DT) :-
+
+    findall(C, city(C,_,_), L),
+    contar(L, NumAux), Num is NumAux - 1,
+    bestfsAux(Orig, [Orig], Cam, DT, 0, Num).
+
+bestfsAux(Orig, LA, Cam, DT, DA, 0) :-
+
+    LA = [Last|_],
+
+    dist_cities(Last, Orig, DAux),
+
+    DT is DA + DAux,
+
+    CamRev = [Orig|LA],
+
+    reverse(CamRev, Cam).
+
+bestfsAux(Orig, LA, Cam, DT, DA, Num) :-
+
+    LA = [Act|_],
+
+    % calcular cidades adjacentes e não visitadas e
+    % guardar tuplo com distancia atual e novo caminho.
+    findall( (DistC,[C|LA]),
+             (city(C,_,_),  \+ member(C, LA),
+                             dist_cities(Act, C, DistC)),
+             Novos ),
+
+    %ordenar por distância
+    sort(Novos, NovosOrd),
+
+    % extrair o melhor caminho atual e a sua distância
+    NovosOrd = [(DA1,Melhor)|_],
+
+    % atualizar contadores
+    DAux is DA + DA1,
+    Num1 is Num - 1,
+
+    % chamada recursiva
+    bestfsAux(Orig, Melhor, Cam, DT, DAux, Num1).
 
 % AUXILIARES
 %
 
 contar([],0).
 contar([_|T],N):- contar(T,N1), N is N1+1.
-
-
-
-
-
 
 
