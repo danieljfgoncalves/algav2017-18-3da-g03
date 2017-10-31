@@ -20,15 +20,15 @@
 %city(london,51.5001524,-0.1262362).
 %city(tallinn,59.4388619,24.7544715).
 %city(helsinki,60.1698791,24.9384078).
-%city(paris,48.8566667,2.3509871).
+city(paris,48.8566667,2.3509871).
 %city(marseille,43.296386,5.369954).
 %city(tbilisi,41.709981,44.792998).
-%city(berlin,52.5234051,13.4113999).
+city(berlin,52.5234051,13.4113999).
 %city(athens,37.97918,23.716647).
 %city(budapest,47.4984056,19.0407578).
 %city(reykjavik,64.135338,-21.89521).
 %city(dublin,53.344104,-6.2674937).
-%city(rome,41.8954656,12.4823243).
+city(rome,41.8954656,12.4823243).
 %city(pristina,42.672421,21.164539).
 %city(riga,56.9465346,24.1048525).
 %city(vaduz,47.1410409,9.5214458).
@@ -46,11 +46,11 @@
 %city(lisbon,38.7071631,-9.135517).
 %city(bucharest,44.430481,26.12298).
 %city(moscow,55.755786,37.617633).
-city(san_marino,43.94236,12.457777).
-city(edinburgh,55.9501755,-3.1875359).
-city(belgrade,44.802416,20.465601).
-city(bratislava,48.1483765,17.1073105).
-city(ljubljana,46.0514263,14.5059655).
+%city(san_marino,43.94236,12.457777).
+%city(edinburgh,55.9501755,-3.1875359).
+%city(belgrade,44.802416,20.465601).
+%city(bratislava,48.1483765,17.1073105).
+%city(ljubljana,46.0514263,14.5059655).
 city(madrid,40.4166909,-3.7003454).
 city(stockholm,59.3327881,18.0644881).
 city(bern,46.9479986,7.4481481).
@@ -246,23 +246,23 @@ swap(C1,C2, Cam, NovCam) :-
 	swapAux(C1,C2,Cam,[],NovCam).
 
 swapAux(_,_,[],Antes,NovoCam) :-
-  NovoCam = Antes.
+  reverse(Antes,NovoCam).
 swapAux(C1,C2, [H|T], Antes, NovCam) :-
 	check_swap(C1,C2, H, NovElem),
-	append(NovElem, Antes, Antes2),
-	swapAux(C1,C2,T,Antes2, NovCam).
+        Antes2 = [NovElem|Antes],
+        swapAux(C1,C2,T,Antes2, NovCam).
 
 check_swap(C1,C2,H,NovElem) :-
 	C1 == H,
-        NovElem is C2.
+        NovElem = C2.
 check_swap(C1,C2,H,NovElem) :-
   C1 \== H,
   C2 == H,
-  NovElem is C1.
+  NovElem = C1.
 check_swap(C1,C2,H,NovElem) :-
   C1 \== H,
   C2 \== H,
-  NovElem is H.
+  NovElem = H.
 
 % verifica se existe cruzamento.
 interseccao_cidades(C1, C2, C3, C4) :-
