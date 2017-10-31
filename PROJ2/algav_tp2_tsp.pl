@@ -1,7 +1,7 @@
 
 % -----------------------------------------------------------------------
-% Trabalho prático: factos de cidades com localização baseada em
-% latitude e longitude e predicado auxiliar para calcular a distância
+% Trabalho prï¿½tico: factos de cidades com localizaï¿½ï¿½o baseada em
+% latitude e longitude e predicado auxiliar para calcular a distï¿½ncia
 % entre quaisquer duas destas cidades.
 % ------------------------------------------------------------------------
 
@@ -57,9 +57,6 @@ city(bern,46.9479986,7.4481481).
 city(kiev,50.440951,30.5271814).
 city(cardiff,51.4813069,-3.1804979).
 
-
-
-
 %
 %  dist_cities(brussels,prague,D).
 %  D = 716837.
@@ -95,7 +92,7 @@ distance(Lat1, Lon1, Lat2, Lon2, Dis2):-
 
 % Predicados
 %
-% [PROJ2 - EX01] No ficheiro bc_projecto2 comente os factos do tipo city de forma a ficar apenas com 5 cidades. Implemente um predicado tsp1, que seja capaz de determinar o circuito de menor comprimento que dada uma cidade C, de entre um conjunto de outras cidades, permita visitar cada uma das cidades uma única vez e voltar à cidade inicial. Na implementação do predicado deve seguir uma abordagem força bruta (pesquisa exaustiva).
+% [PROJ2 - EX01] No ficheiro bc_projecto2 comente os factos do tipo city de forma a ficar apenas com 5 cidades. Implemente um predicado tsp1, que seja capaz de determinar o circuito de menor comprimento que dada uma cidade C, de entre um conjunto de outras cidades, permita visitar cada uma das cidades uma ï¿½nica vez e voltar ï¿½ cidade inicial. Na implementaï¿½ï¿½o do predicado deve seguir uma abordagem forï¿½a bruta (pesquisa exaustiva).
 
 
 tsp1(Orig, Cam, DT) :-
@@ -138,17 +135,17 @@ tspAux(Orig, LA, Cam, Num, DA, DT) :-
     tspAux(Orig, [C|LA], Cam, Num1, DA1, DT).
 
 
-% [PROJ2 - EX02] Identifique qual o número máximo de cidades que o predicado anterior tem capacidade para resolver.
+% [PROJ2 - EX02] Identifique qual o nï¿½mero mï¿½ximo de cidades que o predicado anterior tem capacidade para resolver.
 %
 % [ RESPOSTA ] - 10 cidades.
 
 
-% [PROJ2 - EX03] Implemente o predicado tsp2, utilizando uma heurística greedy, a heurística do vizinho mais próximo (ideia base: próxima cidade a ser visitada é a mais próxima que ainda não foi visitada.
+% [PROJ2 - EX03] Implemente o predicado tsp2, utilizando uma heurï¿½stica greedy, a heurï¿½stica do vizinho mais prï¿½ximo (ideia base: prï¿½xima cidade a ser visitada ï¿½ a mais prï¿½xima que ainda nï¿½o foi visitada.
 
-% [HEURÍSTICA UTILIZADA BestFS Adaptada] - O BestFS sendo um metodo
-% baseado no critério local, não nos garante resultado ótimo, mas por
-% outro lado garante-nos uma solução rapidamente pois não são explorados
-% multiplas opções.
+% [HEURï¿½STICA UTILIZADA BestFS Adaptada] - O BestFS sendo um metodo
+% baseado no critï¿½rio local, nï¿½o nos garante resultado ï¿½timo, mas por
+% outro lado garante-nos uma soluï¿½ï¿½o rapidamente pois nï¿½o sï¿½o explorados
+% multiplas opcoes.
 
 tsp2(Orig, Cam, DT) :-
 
@@ -172,17 +169,17 @@ bestfsAux(Orig, LA, Cam, DT, DA, Num) :-
 
     LA = [Act|_],
 
-    % calcular cidades adjacentes e não visitadas e
+    % calcular cidades adjacentes e nï¿½o visitadas e
     % guardar tuplo com distancia atual e novo caminho.
     findall( (DistC,[C|LA]),
              (city(C,_,_),  \+ member(C, LA),
                              dist_cities(Act, C, DistC)),
              Novos ),
 
-    %ordenar por distância
+    %ordenar por distï¿½ncia
     sort(Novos, NovosOrd),
 
-    % extrair o melhor caminho atual e a sua distância
+    % extrair o melhor caminho atual e a sua distï¿½ncia
     NovosOrd = [(DA1,Melhor)|_],
 
     % atualizar contadores
@@ -192,10 +189,164 @@ bestfsAux(Orig, LA, Cam, DT, DA, Num) :-
     % chamada recursiva
     bestfsAux(Orig, Melhor, Cam, DT, DAux, Num1).
 
+% [PROJ2 - EX04] Implemente um predicado tsp3, que com base na soluï¿½ï¿½o
+% encontrada na questï¿½o 3, implemente uma heurï¿½stica de melhoria da
+% soluï¿½ï¿½o que tem por base o principio da remoï¿½ï¿½o de cruzamentos.
+
+tsp3(Orig,Cam) :-
+  tsp2(Orig,CamAux,_),
+  optimizar_caminhos(CamAux,Cam),!.
+
+% Optimiza o caminho gerado em TSP2.
+optimizar_caminhos(Cam, NovCam) :-
+  optimizar_aux(Cam,[],RevCam),
+  reverse(RevCam,NovCam),!.
+
+optimizar_aux([_|[]],Aux,NovCam) :-
+  NovCam = Aux.
+optimizar_aux(Cam,Aux,NovCam) :-
+  test_cruzamentos(Cam,NovCam1),
+  NovCam1 = [C1|[C2|Resto]],
+  Aux2 = [C2|[C1|Aux]],
+  optimizar_aux(Resto,Aux2,NovCam).
+
+% Testa se existe cruzamentos e resolve-os.
+test_cruzamentos(Cam, NovCam) :-
+  Cam = [C1|[C2|Aux]],
+  cruzamentos_aux(C1,C2,Cam,Aux,NovCam).
+
+cruzamentos_aux(_,_,Cam,[_|[]],NovCam) :-
+  NovCam = Cam.
+cruzamentos_aux(C1,C2,Cam,Aux,NovCam) :-
+  Aux = [C3|[C4|Resto]],
+  test_cruzamento(C1,C2,C3,C4,Cam,Cam2,Resto,Aux2),
+  cruzamentos_aux(C1,C2,Cam2,Aux2,NovCam),!.
+
+% Testa se existe um cruzamento e resolve.
+test_cruzamento(C1,C2,C3,C4,Cam,Cam2,Aux,Aux2) :-
+  \+ interseccao_cidades(C1,C2,C3,C4),
+  Cam2 = Cam,
+  Aux2 = Aux, !.
+test_cruzamento(C1,C2,C3,C4,Cam,Cam2,_,Aux2) :-
+  interseccao_cidades(C1,C2,C3,C4),
+  resolver_interseccao(C1,C2,C3,C4,Cam,Cam2),
+  Aux2 = Cam2, !.
+
+% Resolve uma intersecÃ§Ã£o.
+resolver_interseccao(P1,Q1,P2,Q2, Cam, NovCam) :-
+  dist_cities(P1,P2,D1),
+  dist_cities(P1,Q2,D2),
+  D1<D2,
+  swap(Q1,P2,Cam,NovCam),!.
+resolver_interseccao(_,Q1,_,Q2, Cam, NovCam) :-
+  swap(Q1,Q2,Cam,NovCam).
+
+% Trocar elements numa lista.
+swap(C1,C2, Cam, NovCam) :-
+	swapAux(C1,C2,Cam,[],NovCam).
+
+swapAux(_,_,[],Antes,NovoCam) :-
+  NovoCam = Antes.
+swapAux(C1,C2, [H|T], Antes, NovCam) :-
+	check_swap(C1,C2, H, NovElem),
+	append(NovElem, Antes, Antes2),
+	swapAux(C1,C2,T,Antes2, NovCam).
+
+check_swap(C1,C2,H,NovElem) :-
+	C1 == H,
+        NovElem is C2.
+check_swap(C1,C2,H,NovElem) :-
+  C1 \== H,
+  C2 == H,
+  NovElem is C1.
+check_swap(C1,C2,H,NovElem) :-
+  C1 \== H,
+  C2 \== H,
+  NovElem is H.
+
+% verifica se existe cruzamento.
+interseccao_cidades(C1, C2, C3, C4) :-
+    C1 \== C2,
+    C1 \== C3,
+    C1 \== C4,
+    C2 \== C3,
+    C2 \== C4,
+    C3 \== C4,
+    linearCoord(C1,X1,Y1),
+    linearCoord(C2,X2,Y2),
+    linearCoord(C3,X3,Y3),
+    linearCoord(C4,X4,Y4),
+    doIntersect((X1,Y1),(X2,Y2),(X3,Y3),(X4,Y4)).
+
 % AUXILIARES
 %
 
 contar([],0).
 contar([_|T],N):- contar(T,N1), N is N1+1.
 
+% Given three colinear points p, q, r, the function checks if
+% point q lies on line segment 'pr'
+%onSegment(P, Q, R)
+onSegment((PX,PY), (QX,QY), (RX,RY)):-
+    QX =< max(PX,RX),
+    QX >= min(PX,RX),
+    QY =< max(PY,RY),
+    QY >= min(PY,RY).
 
+
+% To find orientation of ordered triplet (p, q, r).
+% The function returns following values
+% 0 --> p, q and r are colinear
+% 1 --> Clockwise
+% 2 --> Counterclockwise
+
+orientation((PX,PY), (QX,QY), (RX,RY), Orientation):-
+	Val is (QY - PY) * (RX - QX) - (QX - PX) * (RY - QY),
+
+	(
+		Val == 0, !, Orientation is 0;
+		Val >0, !, Orientation is 1;
+		Orientation is 2
+	).
+
+orientation4cases(P1,Q1,P2,Q2,O1,O2,O3,O4):-
+    orientation(P1, Q1, P2,O1),
+    orientation(P1, Q1, Q2,O2),
+    orientation(P2, Q2, P1,O3),
+    orientation(P2, Q2, Q1,O4).
+
+
+
+% The main function that returns true if line segment 'p1q1'
+% and 'p2q2' intersect.
+doIntersect(P1,Q1,P2,Q2):-
+    % Find the four orientations needed for general and
+    % special cases
+	orientation4cases(P1,Q1,P2,Q2,O1,O2,O3,O4),
+
+	(
+    % General case
+    O1 \== O2 , O3 \== O4,!;
+
+    % Special Cases
+    % p1, q1 and p2 are colinear and p2 lies on segment p1q1
+    O1 == 0, onSegment(P1, P2, Q1),!;
+
+    % p1, q1 and p2 are colinear and q2 lies on segment p1q1
+    O2 == 0, onSegment(P1, Q2, Q1),!;
+
+    % p2, q2 and p1 are colinear and p1 lies on segment p2q2
+    O3 == 0, onSegment(P2, P1, Q2),!;
+
+     % p2, q2 and q1 are colinear and q1 lies on segment p2q2
+    O4 == 0, onSegment(P2, Q1, Q2),!
+    ).
+
+linearCoord(City,X,Y):-
+    city(City,Lat,Lon),
+    geo2linear(Lat,Lon,X,Y).
+geo2linear(Lat,Lon,X,Y):-
+    degrees2radians(Lat,LatR),
+    degrees2radians(Lon,LonR),
+    X is round(6371*cos(LatR)*cos(LonR)),
+    Y is round(6371*cos(LatR)*sin(LonR)).
