@@ -195,7 +195,11 @@ bestfsAux(Orig, LA, Cam, DT, DA, Num) :-
 
 tsp3(Orig,Cam) :-
   tsp2(Orig,CamAux,_),
-  optimizar_caminhos(CamAux,Cam),!.
+  optimizar_caminhos(CamAux,Cam2),
+  reverse(Cam2, Cam3),
+  Cam4 = [Orig|Cam3],
+  reverse(Cam4,Cam),
+  !.
 
 % Optimiza o caminho gerado em TSP2.
 optimizar_caminhos(Cam, NovCam) :-
