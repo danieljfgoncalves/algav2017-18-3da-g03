@@ -193,13 +193,13 @@ bestfsAux(Orig, LA, Cam, DT, DA, Num) :-
 % encontrada na quest�o 3, implemente uma heur�stica de melhoria da
 % solu��o que tem por base o principio da remo��o de cruzamentos.
 
-tsp3(Orig,Cam) :-
-  tsp2(Orig,CamAux,_),
-  optimizar_caminhos(CamAux,Cam2),
-  reverse(Cam2, Cam3),
-  Cam4 = [Orig|Cam3],
-  reverse(Cam4,Cam),
-  !.
+%tsp3(Orig,Cam) :-
+%  tsp2(Orig,CamAux,_),
+%  optimizar_caminhos(CamAux,Cam2),
+%  reverse(Cam2, Cam3),
+%  Cam4 = [Orig|Cam3],
+%  reverse(Cam4,Cam),
+%  !.
 
 % Optimiza o caminho gerado em TSP2.
 optimizar_caminhos(Cam, NovCam) :-
@@ -354,3 +354,80 @@ geo2linear(Lat,Lon,X,Y):-
     degrees2radians(Lon,LonR),
     X is round(6371*cos(LatR)*cos(LonR)),
     Y is round(6371*cos(LatR)*sin(LonR)).
+
+list_i_j_swapped(As,I,J,Cs) :-
+   append(BeforeI,[AtI|PastI],As),
+   append(BeforeI,[AtJ|PastI],Bs),
+   append(BeforeJ,[AtJ|PastJ],Bs),
+   append(BeforeJ,[AtI|PastJ],Cs),
+   length(BeforeI,I),
+   length(BeforeJ,J).
+
+indexOf([Element|_], Element, 0):- !.
+indexOf([_|Tail], Element, Index):-
+  indexOf(Tail, Element, Index1),
+  !,
+  Index is Index1+1.
+
+resolverCaminhos(Cam,Q1,Swap,NCam):-
+    indexOf(Cam,Q1,IQ1),indexOf(Cam,Swap,ISwap),
+    list_i_j_swapped(Cam,IQ1,ISwap,NCam).
+
+tsp3(Orig, NCam, D):-
+    tsp2(Orig, Cam,_),
+    tsp3Aux(Cam,NCam),
+    dist_lista(NCam,D).
+
+tsp3Aux(Cam,NCam):-
+    testSegmentos(Cam,P1,Q1,P2,Q2),!,
+    resolverIntersect(Cam,P1,Q1,P2,Q2,NCam1),
+    tsp3Aux(NCam1,NCam).
+
+tsp3Aux(Cam,NCam):-
+    NCam = Cam, !.
+
+resolverIntersect(Cam,P1,Q1,P2,Q2,NCam):-
+    dist_cities(P1,P2,D1),
+    dist_cities(P1,Q2,D2),
+    Cam=[Orig|_],
+    Q2 \== Orig,
+    %dist_cities(Q1,P2,D3),
+    %dist_cities(Q1,Q2,D4),
+    D1>D2,
+    resolverCaminhos(Cam,Q1,Q2,NCam).
+
+resolverIntersect(Cam,_,Q1,P2,_,NCam):-
+    resolverCaminhos(Cam,Q1,P2,NCam).
+
+
+testSegmentos([_|[_|[_|[]]]], _, _ ,_, _):-!,false.
+
+testSegmentos([Act|[Next|Resto]], P1,Q1,P2,Q2):-
+    testSegmento(Act,Next,Resto, P1,Q1,P2,Q2),!.
+
+testSegmentos([_|[Next|Resto]],P1,Q1,P2,Q2):-
+    testSegmentos([Next|Resto],P1,Q1,P2,Q2),
+    !.
+
+testSegmento(_,_,[_|[]],_,_,_,_):-!,false.
+
+testSegmento(P1,Q1,[P2|Resto],C1,C2,C3,C4):-
+    Resto=[Q2|_],
+    P1 \== Q2,
+    interseccao_cidades(P1,Q1,P2,Q2),!,
+    C1=P1,
+    C2=Q1,
+    C3=P2,
+    C4=Q2.
+
+testSegmento(P1,Q1,[_|Resto],C1,C2,C3,C4):-
+    testSegmento(P1,Q1,Resto,C1,C2,C3,C4),!.
+
+
+
+dist_lista([_|[]],0).
+dist_lista([Act|Resto], D):-
+    Resto = [Next|_],
+    dist_lista(Resto,D1),
+    dist_cities(Act,Next,D2),
+    D is D1+D2,!.
