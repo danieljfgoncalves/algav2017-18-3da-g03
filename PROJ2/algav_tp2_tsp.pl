@@ -151,7 +151,7 @@ tsp2(Orig, Cam, DT) :-
 
     findall(C, city(C,_,_), L),
     contar(L, NumAux), Num is NumAux - 1,
-    bestfsAux(Orig, [Orig], Cam, DT, 0, Num).
+    bestfsAux(Orig, [Orig], Cam, DT, 0, Num), !.
 
 bestfsAux(Orig, LA, Cam, DT, DA, 0) :-
 
@@ -193,81 +193,6 @@ bestfsAux(Orig, LA, Cam, DT, DA, Num) :-
 % encontrada na quest�o 3, implemente uma heur�stica de melhoria da
 % solu��o que tem por base o principio da remo��o de cruzamentos.
 
-%tsp3(Orig,Cam) :-
-%  tsp2(Orig,CamAux,_),
-%  optimizar_caminhos(CamAux,Cam2),
-%  reverse(Cam2, Cam3),
-%  Cam4 = [Orig|Cam3],
-%  reverse(Cam4,Cam),
-%  !.
-
-% Optimiza o caminho gerado em TSP2.
-optimizar_caminhos(Cam, NovCam) :-
-  optimizar_aux(Cam,[],RevCam),
-  reverse(RevCam,NovCam),!.
-
-optimizar_aux([_|[]],Aux,NovCam) :-
-  NovCam = Aux.
-optimizar_aux(Cam,Aux,NovCam) :-
-  test_cruzamentos(Cam,NovCam1),
-  NovCam1 = [C1|[C2|Resto]],
-  Aux2 = [C2|[C1|Aux]],
-  optimizar_aux(Resto,Aux2,NovCam).
-
-% Testa se existe cruzamentos e resolve-os.
-test_cruzamentos(Cam, NovCam) :-
-  Cam = [C1|[C2|Aux]],
-  cruzamentos_aux(C1,C2,Cam,Aux,NovCam).
-
-cruzamentos_aux(_,_,Cam,[_|[]],NovCam) :-
-  NovCam = Cam.
-cruzamentos_aux(C1,C2,Cam,Aux,NovCam) :-
-  Aux = [C3|[C4|Resto]],
-  test_cruzamento(C1,C2,C3,C4,Cam,Cam2,Resto,Aux2),
-  cruzamentos_aux(C1,C2,Cam2,Aux2,NovCam),!.
-
-% Testa se existe um cruzamento e resolve.
-test_cruzamento(C1,C2,C3,C4,Cam,Cam2,Aux,Aux2) :-
-  \+ interseccao_cidades(C1,C2,C3,C4),
-  Cam2 = Cam,
-  Aux2 = Aux, !.
-test_cruzamento(C1,C2,C3,C4,Cam,Cam2,_,Aux2) :-
-  interseccao_cidades(C1,C2,C3,C4),
-  resolver_interseccao(C1,C2,C3,C4,Cam,Cam2),
-  Aux2 = Cam2, !.
-
-% Resolve uma intersecção.
-resolver_interseccao(P1,Q1,P2,Q2, Cam, NovCam) :-
-  dist_cities(P1,P2,D1),
-  dist_cities(P1,Q2,D2),
-  D1<D2,
-  swap(Q1,P2,Cam,NovCam),!.
-resolver_interseccao(_,Q1,_,Q2, Cam, NovCam) :-
-  swap(Q1,Q2,Cam,NovCam).
-
-% Trocar elements numa lista.
-swap(C1,C2, Cam, NovCam) :-
-	swapAux(C1,C2,Cam,[],NovCam).
-
-swapAux(_,_,[],Antes,NovoCam) :-
-  reverse(Antes,NovoCam).
-swapAux(C1,C2, [H|T], Antes, NovCam) :-
-	check_swap(C1,C2, H, NovElem),
-        Antes2 = [NovElem|Antes],
-        swapAux(C1,C2,T,Antes2, NovCam).
-
-check_swap(C1,C2,H,NovElem) :-
-	C1 == H,
-        NovElem = C2.
-check_swap(C1,C2,H,NovElem) :-
-  C1 \== H,
-  C2 == H,
-  NovElem = C1.
-check_swap(C1,C2,H,NovElem) :-
-  C1 \== H,
-  C2 \== H,
-  NovElem = H.
-
 % verifica se existe cruzamento.
 interseccao_cidades(C1, C2, C3, C4) :-
     C1 \== C2,
@@ -281,79 +206,6 @@ interseccao_cidades(C1, C2, C3, C4) :-
     linearCoord(C3,X3,Y3),
     linearCoord(C4,X4,Y4),
     doIntersect((X1,Y1),(X2,Y2),(X3,Y3),(X4,Y4)).
-
-% AUXILIARES
-%
-
-contar([],0).
-contar([_|T],N):- contar(T,N1), N is N1+1.
-
-% Given three colinear points p, q, r, the function checks if
-% point q lies on line segment 'pr'
-%onSegment(P, Q, R)
-onSegment((PX,PY), (QX,QY), (RX,RY)):-
-    QX =< max(PX,RX),
-    QX >= min(PX,RX),
-    QY =< max(PY,RY),
-    QY >= min(PY,RY).
-
-
-% To find orientation of ordered triplet (p, q, r).
-% The function returns following values
-% 0 --> p, q and r are colinear
-% 1 --> Clockwise
-% 2 --> Counterclockwise
-
-orientation((PX,PY), (QX,QY), (RX,RY), Orientation):-
-	Val is (QY - PY) * (RX - QX) - (QX - PX) * (RY - QY),
-
-	(
-		Val == 0, !, Orientation is 0;
-		Val >0, !, Orientation is 1;
-		Orientation is 2
-	).
-
-orientation4cases(P1,Q1,P2,Q2,O1,O2,O3,O4):-
-    orientation(P1, Q1, P2,O1),
-    orientation(P1, Q1, Q2,O2),
-    orientation(P2, Q2, P1,O3),
-    orientation(P2, Q2, Q1,O4).
-
-
-
-% The main function that returns true if line segment 'p1q1'
-% and 'p2q2' intersect.
-doIntersect(P1,Q1,P2,Q2):-
-    % Find the four orientations needed for general and
-    % special cases
-	orientation4cases(P1,Q1,P2,Q2,O1,O2,O3,O4),
-
-	(
-    % General case
-    O1 \== O2 , O3 \== O4,!;
-
-    % Special Cases
-    % p1, q1 and p2 are colinear and p2 lies on segment p1q1
-    O1 == 0, onSegment(P1, P2, Q1),!;
-
-    % p1, q1 and p2 are colinear and q2 lies on segment p1q1
-    O2 == 0, onSegment(P1, Q2, Q1),!;
-
-    % p2, q2 and p1 are colinear and p1 lies on segment p2q2
-    O3 == 0, onSegment(P2, P1, Q2),!;
-
-     % p2, q2 and q1 are colinear and q1 lies on segment p2q2
-    O4 == 0, onSegment(P2, Q1, Q2),!
-    ).
-
-linearCoord(City,X,Y):-
-    city(City,Lat,Lon),
-    geo2linear(Lat,Lon,X,Y).
-geo2linear(Lat,Lon,X,Y):-
-    degrees2radians(Lat,LatR),
-    degrees2radians(Lon,LonR),
-    X is round(6371*cos(LatR)*cos(LonR)),
-    Y is round(6371*cos(LatR)*sin(LonR)).
 
 list_i_j_swapped(As,I,J,Cs) :-
    append(BeforeI,[AtI|PastI],As),
@@ -376,7 +228,7 @@ resolverCaminhos(Cam,Q1,Swap,NCam):-
 tsp3(Orig, NCam, D):-
     tsp2(Orig, Cam,_),
     tsp3Aux(Cam,NCam),
-    dist_lista(NCam,D).
+    dist_lista(NCam,D), !.
 
 tsp3Aux(Cam,NCam):-
     testSegmentos(Cam,P1,Q1,P2,Q2),!,
@@ -423,11 +275,156 @@ testSegmento(P1,Q1,[P2|Resto],C1,C2,C3,C4):-
 testSegmento(P1,Q1,[_|Resto],C1,C2,C3,C4):-
     testSegmento(P1,Q1,Resto,C1,C2,C3,C4),!.
 
-
-
 dist_lista([_|[]],0).
 dist_lista([Act|Resto], D):-
     Resto = [Next|_],
     dist_lista(Resto,D1),
     dist_cities(Act,Next,D2),
     D is D1+D2,!.
+
+% 5. Implemente o predicado tsp4, recorrendo ao algoritmo simulated annealing.
+%
+
+distCam(Cam, DF) :-
+    distCam_Aux(Cam, 0, DF).
+
+distCam_Aux([_|[]], Daux, DF) :- DF is Daux, !.
+distCam_Aux(Cam, Daux, DF) :-
+    Cam = [C1 | Resto],
+    Resto = [C2 | _],
+    dist_cities(C1, C2, Daux2),
+    Daux3 is Daux + Daux2,
+    distCam_Aux(Resto, Daux3, DF).
+
+temperature(1).
+constant(0.9).
+e(2.71828).
+
+acceptanceProbability(Cold,Cnew,T,Ap):- e(E),exp(E,((Cold-Cnew)/T),Ap).
+
+exp(X,Y,R):- R is round(X**Y).
+
+newTemperature(T,NewTemperature):- constant(C), NewTemperature is C*T.
+
+
+tsp4(Orig,It, CamFinal, DF):-
+
+    tsp3(Orig, Cam, DI),
+    temperature(T),
+    simAnnealing(Cam, DI, It, T, CamFinal, DF),!.
+
+
+simAnnealing(Orig,Cold,0,_,CamFinal,DF):-
+    CamFinal = Orig,
+    DF = Cold,!.
+
+simAnnealing(Orig,Cold,It,T,CamFinal,DF):-
+    It2 is It-1,
+    newAdjacent(Orig,NewL),
+    distCam(NewL,Cnew),
+    ((Cnew < Cold),
+    newTemperature(T,T1),
+    simAnnealing(NewL,Cnew,It2,T1,CamFinal,DF);
+
+    checkMove(Orig,Cold,NewL,Cnew,T,LRes,CRes),
+    newTemperature(T,T1),
+    simAnnealing(LRes,CRes,It2,T1,CamFinal,DF)),!.
+
+
+newAdjacent(S1,Sn):-
+    length(S1,T1),
+    interval(T1,Start,End),
+    random_between(Start,End,Pos1),
+    random_between(Start,End,Pos2),
+    nth1(Pos1,S1,E1),
+    nth1(Pos2,S1,E2),
+    removeElementPos(Pos1,S1,S2),
+    insertElementPos(Pos1,E2,S2,S3),
+    removeElementPos(Pos2,S3,S4),
+    insertElementPos(Pos2,E1,S4,Sn).
+
+removeElementPos(Pos,List,NewList):-
+    nth1(Pos, List, _, NewList),!.
+insertElementPos(Pos,Elem,List,NewList):-
+    nth1(Pos, NewList, Elem, List),!.
+
+interval(T1,Start,End):-
+    Start is 2,
+    End is T1 - 1.
+
+checkMove(Orig,Cold,NewLista,Cnew,T,NewL,NewC):-
+    random(R),
+    acceptanceProbability(Cold,Cnew,T,Ap),
+    (((Ap>1; Ap>R), (NewC = Cnew, NewL = NewLista));
+    NewL = Orig, NewC = Cold).
+
+% AUXILIARES
+%
+
+contar([],0).
+contar([_|T],N):- contar(T,N1), N is N1+1.
+
+% Given three colinear points p, q, r, the function checks if
+% point q lies on line segment 'pr'
+%onSegment(P, Q, R)
+onSegment((PX,PY), (QX,QY), (RX,RY)):-
+    QX =< max(PX,RX),
+    QX >= min(PX,RX),
+    QY =< max(PY,RY),
+    QY >= min(PY,RY).
+
+
+% To find orientation of ordered triplet (p, q, r).
+% The function returns following values
+% 0 --> p, q and r are colinear
+% 1 --> Clockwise
+% 2 --> Counterclockwise
+
+orientation((PX,PY), (QX,QY), (RX,RY), Orientation):-
+	Val is (QY - PY) * (RX - QX) - (QX - PX) * (RY - QY),
+
+	(
+		Val == 0, !, Orientation is 0;
+		Val >0, !, Orientation is 1;
+		Orientation is 2
+	).
+
+orientation4cases(P1,Q1,P2,Q2,O1,O2,O3,O4):-
+    orientation(P1, Q1, P2,O1),
+    orientation(P1, Q1, Q2,O2),
+    orientation(P2, Q2, P1,O3),
+    orientation(P2, Q2, Q1,O4).
+
+% The main function that returns true if line segment 'p1q1'
+% and 'p2q2' intersect.
+doIntersect(P1,Q1,P2,Q2):-
+    % Find the four orientations needed for general and
+    % special cases
+	orientation4cases(P1,Q1,P2,Q2,O1,O2,O3,O4),
+
+	(
+    % General case
+    O1 \== O2 , O3 \== O4,!;
+
+    % Special Cases
+    % p1, q1 and p2 are colinear and p2 lies on segment p1q1
+    O1 == 0, onSegment(P1, P2, Q1),!;
+
+    % p1, q1 and p2 are colinear and q2 lies on segment p1q1
+    O2 == 0, onSegment(P1, Q2, Q1),!;
+
+    % p2, q2 and p1 are colinear and p1 lies on segment p2q2
+    O3 == 0, onSegment(P2, P1, Q2),!;
+
+     % p2, q2 and q1 are colinear and q1 lies on segment p2q2
+    O4 == 0, onSegment(P2, Q1, Q2),!
+    ).
+
+linearCoord(City,X,Y):-
+    city(City,Lat,Lon),
+    geo2linear(Lat,Lon,X,Y).
+geo2linear(Lat,Lon,X,Y):-
+    degrees2radians(Lat,LatR),
+    degrees2radians(Lon,LonR),
+    X is round(6371*cos(LatR)*cos(LonR)),
+    Y is round(6371*cos(LatR)*sin(LonR)).
