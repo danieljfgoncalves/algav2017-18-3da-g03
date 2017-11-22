@@ -1,7 +1,14 @@
 % display Knowledge Base
 
 % Boards intial state [B]
-
+%     L-1 | L-2 | L-3 | L-4 | L-5 | L-6
+% C-A
+% C-B
+% C-C
+% C-D
+% C-E
+% C-F
+% C-G
 initialState(
   board([ ['_','_','_','_','_','_'],
           ['_','_','_','_','_','_'],
