@@ -47,3 +47,30 @@ displayLineAux(B, B2) :-
 display(board(B)) :-
   write('  A B C D E F G'), nl,
   displayBoard(B, 6), !.
+
+%%%%%%%%%%%%%%%%%%%%%
+%%% SELECT COLUMN %%%
+%%%%%%%%%%%%%%%%%%%%%
+
+
+
+% Valid columns
+column(0).
+column(1).
+column(2).
+column(3).
+column(4).
+column(5).
+column(6).
+
+
+read_move(Col):-
+  write('Select a valid column?'), nl,
+  repeat,
+  get_char(Input),
+  atom_codes(Input, [Char|_]),
+  Col is Char-65,
+  column(Col).
+
+  
+play:- read_move(Col), write(Col).
