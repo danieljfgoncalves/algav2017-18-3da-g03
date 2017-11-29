@@ -10,13 +10,13 @@
 % C-F
 % C-G
 initialState(
-  board([ ['_','_','_','_','_','_'],
+  board([ ['_','_','_','_','X','Y'],
           ['_','_','_','_','_','_'],
           ['_','_','_','_','_','_'],
           ['_','_','_','_','_','_'],
           ['_','_','_','_','_','_'],
           ['_','_','_','_','_','_'],
-          ['_','_','_','_','_','_']])
+          ['_','_','_','_','_','Y']])
 ).
 
 %%%%%%%%%%%%%%%%%%%%%
@@ -64,7 +64,7 @@ column(5).
 column(6).
 
 
-read_move(Col):-
+readMove(Col):-
   write('Select a valid column?'), nl,
   repeat,
   get_char(Input),
@@ -72,5 +72,23 @@ read_move(Col):-
   Col is Char-65,
   column(Col).
 
-  
-play:- read_move(Col), write(Col).
+
+play:- readMove(Col), write(Col).
+
+%%%%%%%%%%%%%%%%%%%%%
+%%%  GAME LOGIC   %%%
+%%%%%%%%%%%%%%%%%%%%%
+
+% insertToColumn(X,Col,Col2)
+insertToColumn(X, ['_'], [X]) :- !. % Plays at last spot
+insertToColumn(X, ['_',Y|YS], [X,Y|YS]) :-
+  Y \== ('_'), !. % Plays before last piece
+insertToColumn(X,['_'|YS], ['_'|YS2]) :- insertToColumn(X, YS, YS2). % check lower line.
+
+% play(X,C,B,B2) is true if B2 is same as board B after X's move to
+% Column C
+play(X,C,board(B),board(B2)):-
+  append(Ind,[Col|Rest],B),
+  length(Ind,C),
+  insertToColumn(X,Col,Col2),
+  append(Ind,[Col2|Rest],B2).
