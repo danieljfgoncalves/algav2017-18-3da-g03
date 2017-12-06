@@ -1,3 +1,14 @@
+start():-initialState(B), J='X', game(B,J).
+
+game(board(B),J):-
+  display(B),
+  readColumn(J,C),
+  play(J,C,B,B2), 
+  (
+    victory(J,B2), display(B2), nl , write('Winner Jogador '), write(J);
+    (J='X',J1='Y';J1='X'),game(board(B2),J1)
+  ).
+
 % display Knowledge Base
 
 % Boards intial state [B]
@@ -10,17 +21,17 @@
 % C-F
 % C-G
 initialState(
-    board([ ['_','_','_','_','X','Y'],
+    board([ ['_','_','_','_','_','_'],
             ['_','_','_','_','_','_'],
             ['_','_','_','_','_','_'],
             ['_','_','_','_','_','_'],
             ['_','_','_','_','_','_'],
             ['_','_','_','_','_','_'],
-            ['_','_','_','_','_','Y']])
+            ['_','_','_','_','_','_']])
   ).
   
   victoryState(
-    board([ ['_','_','_','_','X','Y'],
+    board([ ['_','_','_','_','Y','Y'],
             ['X','_','_','X','X','X'],
             ['_','X','_','_','_','_'],
             ['_','_','X','_','_','_'],
@@ -54,7 +65,7 @@ initialState(
     displayLineAux(NxtColumns, NxtRestColumns).
   
   
-  display(board(B)) :-
+  display(B) :-
     write('  A B C D E F G'), nl,
     displayBoard(B, 6), !.
   
@@ -71,7 +82,8 @@ initialState(
   column(5).
   column(6).
   
-  readColumn(Col):-
+  readColumn(J,Col):-
+    write('[Jogador '), write(J), write('] - '),
     write('Select a valid column?'), nl,
     repeat,
     get_char(Input),
@@ -90,7 +102,7 @@ initialState(
   insertToColumn(X,['_'|YS], ['_'|YS2]) :- insertToColumn(X, YS, YS2). % check line below.
   
   % play is true if B2 is same as board B after X's move to Column C
-  play(X,C,board(B),board(B2)):-
+  play(X,C,B,B2):-
     append(Ind,[Col|Rest],B),
     length(Ind,C),
     insertToColumn(X,Col,Col2),
@@ -99,11 +111,11 @@ initialState(
   % Victory
   %
   % Vertical
-  victory(X, board(B)):-
+  victory(X, B):-
     append(_, [Col|_], B),
     append(_, [X,X,X,X|_], Col).
   % Horizontal
-  victory(X, board(B)) :-
+  victory(X, B) :-
     append(_,[Col|Rest], B),
     append(_,[X|I], Col),
     length(I,Index),
@@ -115,7 +127,7 @@ initialState(
     append(_,[X|I4],C4),
     length(I4,Index).
   % Diagonal \
-  victory(X, board(B)):-
+  victory(X, B):-
     append(_,[Col|Rest], B),
     append(_,[X|I], Col),
     length(I,Index),
@@ -130,7 +142,7 @@ initialState(
     Index4 is Index3 + 1,
     length(I4,Index4).
   % Diagonal /
-  victory(X, board(B)):-
+  victory(X, B):-
     append(_,[Col|Rest], B),
     append(_,[X|I], Col),
     length(I,Index),
@@ -142,11 +154,6 @@ initialState(
     append(_,[X|I4],C4),
     length(I4,Index4),
     Index2 is Index-1, Index3 is Index2-1,Index4 is Index3-1.
-  
-  
-  
-  
-  % initialState(B), play('X',3,B,B2), display(B2).
   
   
   
