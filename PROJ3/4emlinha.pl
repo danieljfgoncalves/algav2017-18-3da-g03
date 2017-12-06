@@ -155,7 +155,11 @@ initialState(
     length(I4,Index4),
     Index2 is Index-1, Index3 is Index2-1,Index4 is Index3-1.
   
-  
+  draw(B):- 
+    \+ (
+      append(_,[C|_],B),
+      append(_,['_'|_],C)
+    ).
   
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   %%%%%  COMPLEMENTARY RESEARCH  %%%%%
